@@ -26,7 +26,7 @@ echo -e "Type the folder of the photos:"
 read folder_photos
 
 cd "$folder_photos"
-if [ $? -ne 0 ]; then
+if [ $? -ne 0 ] || [ "$folder_photos" = "" ] ; then
     echo -e "\n !! Error folder !!\n"
     exit
 fi
@@ -35,7 +35,7 @@ echo -e "Are you sure to continue with this folder?"
 read
 
 echo -e "###########################################################"
-echo -e "######### Step 1. Copy files to a format datetime #########"
+echo -e "######### Step 1. Copy files to a datetime format #########"
 echo -e "################        YYYYMMDD_HHMMSS       #############"
 echo -e "###########################################################"
 
@@ -64,19 +64,19 @@ for file in `ls -p | egrep -v /$`; do # Liste tous les fichiers (non dossiers)
     done
 
     echo "$file -> ${output_folder}/${file_new}"
-    cp "${file}" "${output_folder}/${file_new}"
+    cp -p "${file}" "${output_folder}/${file_new}"
 
     file_name_prev=$file_name
     file_datetime_prev=$file_datetime
 done
 
 # pause
-echo -e "\nReturn to continue to step 2 or Ctr-C to stop there"
+echo -e "\nReturn to continue to step 2 or Ctrl-c to stop there"
 read
 
 echo -e "##################################################"
-echo -e "######### Step 2. Rename files to date ###########"
-echo -e "###########         YYYYMMDD-nnn        ##########"
+echo -e "##### Step 2. Sort and rename files by date ######"
+echo -e "##########         YYYYMMDD-nnn        ###########"
 echo -e "##################################################"
 
 
@@ -117,8 +117,8 @@ for file in `ls -p ./${output_folder}/ | egrep -v /$`; do
 
     date_prev=$date
     file_name_prev=$file_name
-done
 
+done
 
 echo -e "##################################################"
 echo -e "##################################################"
