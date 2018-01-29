@@ -25,15 +25,13 @@ clear
 echo -e "Type the folder of the photos:"
 read folder_photos
 
-folder_photos="/Users/thomas/Downloads/2018-01 Cuba/test copy 2"
-
 cd "$folder_photos"
 if [ $? -ne 0 ]; then
     echo -e "\n !! Error folder !!\n"
     exit
 fi
 
-echo -e "Are you sure to continue with the typed folder?"
+echo -e "Are you sure to continue with this folder?"
 read
 
 echo -e "###########################################################"
