@@ -1,8 +1,8 @@
 # Script pour renommer les photos à leur date de création EXIF 
 
 ## Auteur
-* v 1.0 
-* Févier 2018
+* v 1.1
+* Mai 2018
 * Thomas Cellerier
 
 ## Exécution
