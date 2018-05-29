@@ -1,7 +1,7 @@
 #!/bin/bash 
 
-## v 1.0
-## Février 2018
+## v 1.1
+## May 2018
 ## Thomas Cellerier
 ## MAC OS uniquement
 
@@ -34,50 +34,61 @@ if [ $? -ne 0 ] || [ "$folder_photos" = "" ] ; then
     exit
 fi
 
-echo -e "\nAre you sure to continue with this folder?"
-read
+echo -e "\nAre you sure to proceed with step 1 for this folder? [y]/n\n(copy files to format YYYYMMDD_HHMMSS) "
+read confirm_step1
+confirm_step1=`echo $confirm_step1 | tr '[:upper:]' '[:lower:]'`
 
-echo -e "###########################################################"
-echo -e "###### Step 1. Copy files to a unique datetime format #####"
-echo -e "######                 YYYYMMDD_HHMMSS                #####"
-echo -e "###########################################################\n"
+if [ "$confirm_step1" = "" ] || [ "$confirm_step1" = "y" ] || [ "$confirm_step1" = "yes" ] ; then
 
-mkdir $output_folder
-IFS=$'\n' # Split du 'for' sur les fins de lignes et non les espaces
-for file in `ls -p | egrep -v /$`; do # Liste tous les fichiers (non dossiers)
+    echo -e "###########################################################"
+    echo -e "###### Step 1. Copy files to a unique datetime format #####"
+    echo -e "######                 YYYYMMDD_HHMMSS                #####"
+    echo -e "###########################################################\n"
 
-    file_name=${file%.*} # jusqu'au dernier point
-    file_ext=${file##*.} # après le dernier point
-    file_ext=$(echo "$file_ext" | tr '[:upper:]' '[:lower:]') # minuscule
-    file_datetime=$(date -f'%F %T %z' -j "$(mdls -name kMDItemContentCreationDate -raw $file)" +${format_photo}) # Convertion au bon fuseau horaire (sinon par défaut en UTC). Marche pour l'Exif des photos mais aussi pour n'importe quel fichier
+    mkdir $output_folder
+    IFS=$'\n' # Split du 'for' sur les fins de lignes et non les espaces
+    for file in `ls -p | egrep -v /$`; do # Liste tous les fichiers (non dossiers)
 
-    # Exception pour les Live Vidéos Apple dont le timestamp est souvent faux. On utilise alors le timestamp de la photo correspondante.
-    #  règle : Le nom du fichier (sans extension) doit être identique au fichier précédent et le 2è fichier un .mov
-    if [ "$file_name" = "$file_name_prev" ] && [ "$file_ext" = "mov" ]; then
-        file_datetime=$file_datetime_prev
-    fi
+        file_name=${file%.*} # jusqu'au dernier point
+        file_ext=${file##*.} # après le dernier point
+        file_ext=$(echo "$file_ext" | tr '[:upper:]' '[:lower:]') # minuscule
+        file_datetime=$(date -f'%F %T %z' -j "$(mdls -name kMDItemContentCreationDate -raw $file)" +${format_photo}) # Convertion au bon fuseau horaire (sinon par défaut en UTC). Marche pour l'Exif des photos mais aussi pour n'importe quel fichier
 
-    file_new="${file_datetime}.${file_ext}"
+        # Exception pour les Live Vidéos Apple dont le timestamp est souvent faux. On utilise alors le timestamp de la photo correspondante.
+        #  règle : Le nom du fichier (sans extension) doit être identique au fichier précédent et le 2è fichier un .mov
+        if [ "$file_name" = "$file_name_prev" ] && [ "$file_ext" = "mov" ]; then
+            file_datetime=$file_datetime_prev
+        fi
 
-    # Verification que le fichier n'existe pas déjà
-    count_unique=1 # compteur incrémental d'unicité
-    while [ -e "${output_folder}/${file_new}" ]; do
-        file_new="${file_datetime} - ${count_unique}.${file_ext}"
-        count_unique=$((count_unique+1))
+        file_new="${file_datetime}.${file_ext}"
+
+        # Verification que le fichier n'existe pas déjà
+        count_unique=1 # compteur incrémental d'unicité
+        while [ -e "${output_folder}/${file_new}" ]; do
+            file_new="${file_datetime} - ${count_unique}.${file_ext}"
+            count_unique=$((count_unique+1))
+        done
+
+        echo "$file -> ${output_folder}/${file_new}"
+        cp -p "${file}" "${output_folder}/${file_new}"
+
+        file_name_prev=$file_name
+        file_datetime_prev=$file_datetime
+    done
+else
+
+    mkdir $output_folder
+    IFS=$'\n' # Split du 'for' sur les fins de lignes et non les espaces
+    for file in `ls -p | egrep -v /$`; do # Liste tous les fichiers (non dossiers)
+        cp -p "${file}" "${output_folder}/${file}"
     done
 
-    echo "$file -> ${output_folder}/${file_new}"
-    cp -p "${file}" "${output_folder}/${file_new}"
-
-    file_name_prev=$file_name
-    file_datetime_prev=$file_datetime
-done
-
+fi
 
 
 # pause
 echo -e "\n###########################################################"
-echo -e "\nPress Enter to continue to step 2 or Ctrl-c to stop here"
+echo -e "\nPress Enter to continue to step 2 or Ctrl-c to stop here\n(sort and rename files by date)"
 read
 
 echo -e "##################################################"
