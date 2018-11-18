@@ -1,14 +1,16 @@
 #!/bin/bash 
 
-## v 1.1
-## May 2018
+## v 1.2
+## Nov 2018
 ## Thomas Cellerier
 ## MAC OS uniquement
 
-##################################################################################################
-##### Script pour renommer les photos à leur date de création EXIF (format 20180129-001.jpg) #####
-##################################################################################################
+#####################################################################################################
+##### Script pour renommer les photos avec leur date de création EXIF (format 20180129-001.jpg) #####
+#####################################################################################################
 
+## Utilisation: 
+#    Argument optionnel pour indiquer le répertoire à traiter. Ex: ./rename_photos_bydata.sh /tmp/photos/
 
 ## Tri et renomme les photos/vidéos au format 20180129-001.jpg en 2 étapes :
 ##  a. Copie tous les fichiers vers le format YYYYMMDD_HHMMSS (date EXIF et sinon date création fichier) dans un sous-dossier 
@@ -25,8 +27,14 @@ output_folder="_output"
 ################
 
 clear
-echo -e "Type the full path of the photos/videos:"
-read folder_photos
+if [ "$1" = "" ] ; then
+    echo -e "Type the full path of the photos/videos:"
+    read folder_photos
+else
+    echo -e "Full path of the photos/videos: $1"
+    folder_photos=$1
+fi
+
 
 cd "$folder_photos"
 if [ $? -ne 0 ] || [ "$folder_photos" = "" ] ; then
