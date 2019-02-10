@@ -6,11 +6,11 @@
 * Thomas Cellerier
 
 ## Exécution
-* ./rename_photos_bydate.sh
+* En ligne de commande : ./rename_photos_bydate.sh
 ou
 ./rename_photos_bydate.sh full_path_folder
 
-* Utilisation du menu "Quick action" sur le dossier à traiter. Pour cela, dans Automator, créer un Workflow Apple script "Quick Action" avec ce script :
+* Ou utilisation du menu "Quick action" sur le dossier à traiter. Pour cela, dans Automator, créer un Workflow Apple script "Quick Action" avec ce script :
 ```
 on run {input, parameters}
 	
@@ -39,4 +39,4 @@ end run
  
 ## Fontionnalités clefs
 * Si le fichier est une live vidéo .mov Apple, le nom définitif de la vidéo est identique au nom de la photo correspondante
-* Si le fichier renommé existe déjà, on incrémente le compteur nnn
+* Si le fichier renommé existe déjà, on incrémente un compteur nnn
