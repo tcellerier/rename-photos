@@ -13,18 +13,21 @@ ou
 * Utilisation du menu "Quick action" sur le dossier à traiter. Pour cela, dans Automator, créer un Workflow Apple script "Quick Action" avec ce script :
 ```
 on run {input, parameters}
+	
+	set userName to do shell script "whoami"
 	set folder_path to POSIX path of (item 1 of input)
 	if application "Terminal" is running then 
 		tell application "Terminal"
 			activate
-			do script with command "/Users/thomas/Pictures/rename_photos_bydate.sh '" & folder_path & "'"
+			do script with command "/Users/" & userName & "/Pictures/rename_photos_bydate.sh '" & folder_path & "'"
 		end tell
 	else
 		tell application "Terminal"
 			activate
-			do script with command "/Users/thomas/Pictures/rename_photos_bydate.sh '" & folder_path & "'" in window 1
+			do script with command "/Users/" & userName & "/Pictures/rename_photos_bydate.sh '" & folder_path & "'" in window 1
 		end tell
 	end if
+	
 end run
 ```
 
