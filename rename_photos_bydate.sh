@@ -1,7 +1,7 @@
 #!/bin/bash 
 
-## v 1.2
-## Nov 2018
+## v 1.3
+## July 2019
 ## Thomas Cellerier
 ## MAC OS uniquement
 
@@ -12,8 +12,8 @@
 ## Utilisation: 
 #    Argument optionnel pour indiquer le répertoire à traiter. Ex: ./rename_photos_bydata.sh /tmp/photos/
 
-## Tri et renomme les photos/vidéos au format 20180129-001.jpg en 2 étapes :
-##  a. Copie tous les fichiers vers le format YYYYMMDD_HHMMSS (date EXIF et sinon date création fichier) dans un sous-dossier 
+## Tri et renomme les photos/vidéos au format 20180129-001.jpg en 2 étapes tout en gardant les fichiers originaux dans un sous répertoire :
+##  a. Copie tous les fichiers vers le format YYYYMMDD_HHMMSS (date EXIF et sinon date création fichier)  
 ##      Si le fichier est une live vidéo .mov, l'heure utilisée est celle de la photo correspondante au même nom
 ##      Si le fichier renommé existe déjà, on incrémente le nom "YYYYMMDD_HHMMSS - n"
 ##  b. Renomme les fichiers créés en étape 1 au format YYYYMMDD-nnn (fichiers qui sont donc correctement triés à partir de leur nom)
@@ -23,7 +23,7 @@
 
 ## Paramètres ##
 format_photo="%Y%m%d_%H%M%S"
-output_folder="_output"
+backup_folder="_original"
 ################
 
 clear
@@ -53,7 +53,7 @@ if [ "$confirm_step1" = "" ] || [ "$confirm_step1" = "y" ] || [ "$confirm_step1"
     echo -e "######                 YYYYMMDD_HHMMSS                #####"
     echo -e "###########################################################\n"
 
-    mkdir $output_folder
+    mkdir $backup_folder
     IFS=$'\n' # Split du 'for' sur les fins de lignes et non les espaces
     for file in `ls -p | egrep -v /$`; do # Liste tous les fichiers (non dossiers)
 
@@ -72,23 +72,24 @@ if [ "$confirm_step1" = "" ] || [ "$confirm_step1" = "y" ] || [ "$confirm_step1"
 
         # Verification que le fichier n'existe pas déjà
         count_unique=1 # compteur incrémental d'unicité
-        while [ -e "${output_folder}/${file_new}" ]; do
+        while [ -e "${file_new}" ]; do
             file_new="${file_datetime} - ${count_unique}.${file_ext}"
             count_unique=$((count_unique+1))
         done
 
-        echo "$file -> ${output_folder}/${file_new}"
-        cp -p "${file}" "${output_folder}/${file_new}"
+        echo "$file -> ${file_new}"
+        cp -p "${file}" "${backup_folder}/${file}"
+        mv "${file}" "${file_new}"
 
         file_name_prev=$file_name
         file_datetime_prev=$file_datetime
     done
 else
 
-    mkdir $output_folder
+    mkdir $backup_folder
     IFS=$'\n' # Split du 'for' sur les fins de lignes et non les espaces
     for file in `ls -p | egrep -v /$`; do # Liste tous les fichiers (non dossiers)
-        cp -p "${file}" "${output_folder}/${file}"
+        cp -p "${file}" "${backup_folder}/${file}"
     done
 
 fi
@@ -106,7 +107,7 @@ echo -e "##################################################\n"
 
 
 IFS=$'\n' # Split du for sur les fins de lignes et non les espaces
-for file in `ls -p ./${output_folder}/ | egrep -v /$`; do
+for file in `ls -p ./ | egrep -v /$`; do
 
     file_date=${file:0:8} # 8 premiers charactères du fichier
     file_name=${file%.*} # jusqu'au dernier point
@@ -128,14 +129,14 @@ for file in `ls -p ./${output_folder}/ | egrep -v /$`; do
     file_new="${file_date}-${count_date_format}.${file_ext}"
 
     # Verification que le fichier n'existe pas déjà
-    while [ -e "${output_folder}/${file_new}" ]; do
+    while [ -e "${file_new}" ]; do
         count_date=$((count_date+1))
         printf -v count_date_format "%03d" $count_date # Mise au format 3 chiffres du compteur
         file_new="${file_date}-${count_date_format}.${file_ext}"
     done
 
     echo "$file -> $file_new"
-    mv "${output_folder}/${file}" "${output_folder}/${file_new}"
+    mv "${file}" "${file_new}"
 
     file_date_prev=$file_date
     file_name_prev=$file_name
